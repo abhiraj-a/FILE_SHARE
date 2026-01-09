@@ -32,6 +32,8 @@ public class SecurityConfig {
         http
                 .cors(Customizer.withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
+                .formLogin(AbstractHttpConfigurer::disable)
+                .httpBasic(AbstractHttpConfigurer::disable)
                 .sessionManagement(s ->
                         s.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
@@ -39,9 +41,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/health", "/user/signup", "/api/webhooks/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/files/upload").authenticated()
-                                .requestMatchers(HttpMethod.POST, "/files/upload").permitAll()
-                                .anyRequest().authenticated()
-//                                .anyRequest().permitAll()
+                        .anyRequest().authenticated()
                 )
                 .addFilterBefore(filter, UsernamePasswordAuthenticationFilter.class);
 
