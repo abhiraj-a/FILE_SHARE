@@ -68,6 +68,8 @@ public class SecurityConfig {
                 "GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"
         ));
 
+        configuration.setExposedHeaders(List.of("Content-Disposition" , "Content-Length"));
+
         UrlBasedCorsConfigurationSource source =
                 new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
