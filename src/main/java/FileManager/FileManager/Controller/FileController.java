@@ -3,6 +3,7 @@ package FileManager.FileManager.Controller;
 import FileManager.FileManager.Service.FileService;
 import FileManager.FileManager.Utils.ClerkUserPrincipal;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -36,11 +37,9 @@ public class FileController {
 
         String signedURL = fileService.download(principal, id);
 
-        URI redirectUri = UriComponentsBuilder
-                .fromHttpUrl("https://nnjgyyrhidboaqvdwrwc.supabase.co/storage/v1" + signedURL)
-                .build(true)
-                .toUri();
-        return ResponseEntity.status(HttpStatus.FOUND).location(redirectUri).build();
+        String redirect = "https://nnjgyyrhidboaqvdwrwc.supabase.co/storage/v1" + signedURL;
+
+        return ResponseEntity.status(HttpStatus.FOUND).header(HttpHeaders.LOCATION,redirect).build();
     }
 
     @DeleteMapping
