@@ -9,8 +9,10 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.util.UriUtils;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -51,9 +53,10 @@ public class StorageServiceImpl implements StorageService {
         Map<String, Object> body = new HashMap<>();
         body.put("expiresIn", 300);
 
+        String encodedpath = UriUtils.encodePath(path, StandardCharsets.UTF_8);
         return supabaseWebClient
                 .post()
-                .uri("/storage/v1/object/sign/{bucket}/{path}", bucket, path) 
+                .uri("/storage/v1/object/sign/{bucket}/{path}", bucket, path)
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .bodyValue(body)
                 .retrieve()

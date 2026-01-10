@@ -3,11 +3,13 @@ package FileManager.FileManager.Controller;
 import FileManager.FileManager.Service.FileService;
 import FileManager.FileManager.Utils.ClerkUserPrincipal;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.net.URI;
 import java.util.List;
 import java.util.UUID;
 
@@ -30,7 +32,11 @@ public class FileController {
 
     @GetMapping("/download/{id}")
     public ResponseEntity<?> download(@AuthenticationPrincipal ClerkUserPrincipal principal , @PathVariable UUID id){
-        return ResponseEntity.ok(fileService.download(principal, id));
+
+        String signedURL = fileService.download(principal, id);
+        return ResponseEntity.status(HttpStatus.FOUND).location(URI.create(
+                "https://nnjgyyrhidboaqvdwrwc.supabase.co/storage/v1" + signedURL
+        )).build();
     }
 
     @DeleteMapping
