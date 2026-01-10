@@ -1,5 +1,6 @@
 package FileManager.FileManager.ServiceImpl;
 
+import FileManager.FileManager.DTO.DownloadFileDTO;
 import FileManager.FileManager.DTO.FileEntityDTO;
 import FileManager.FileManager.Entity.FileEntity;
 import FileManager.FileManager.Entity.FileTransfer;
@@ -16,9 +17,12 @@ import FileManager.FileManager.Service.FileService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.reactive.function.client.WebClient;
+
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,6 +39,8 @@ public class FileServiceImpl implements FileService {
     private final StorageService storageService;
 
     private final FileTransferRepo fileTransferRepo;
+
+    private final WebClient webClient;
 
 
     @Override
@@ -95,15 +101,40 @@ public class FileServiceImpl implements FileService {
         return dtos;
     }
 
+//    @Override
+//    public String download(ClerkUserPrincipal principal, UUID id) {
+//        User owner = userRepo.findByClerkId(principal.getClerkId()).orElseThrow(UserNotFoundException::new);
+//
+//        FileEntity file  = fileEntityRepo.findById(id).orElseThrow(FileNotFoundException::new);
+//
+//        if(!file.getOwner().getId().equals(owner.getId())) throw new RuntimeException("Access denied");
+//
+//        return storageService.generateSignedDownload(file.getStoragePath());
+//    }
+
     @Override
-    public String download(ClerkUserPrincipal principal, UUID id) {
+    public DownloadFileDTO downloadFile(ClerkUserPrincipal principal , UUID id){
         User owner = userRepo.findByClerkId(principal.getClerkId()).orElseThrow(UserNotFoundException::new);
 
         FileEntity file  = fileEntityRepo.findById(id).orElseThrow(FileNotFoundException::new);
 
         if(!file.getOwner().getId().equals(owner.getId())) throw new RuntimeException("Access denied");
 
-        return storageService.generateSignedDownload(file.getStoragePath());
+        String signedDownload = storageService.generateSignedDownload(file.getStoragePath());
+
+        String fullurl = "https://nnjgyyrhidboaqvdwrwc.supabase.co/storage/v1"+signedDownload;
+        Resource resource =webClient.get()
+                .uri(fullurl)
+                .retrieve()
+                .bodyToMono(Resource.class)
+                .block();
+
+        return DownloadFileDTO.builder()
+                .resource(resource)
+                .originalFileName(file.getOriginalFileName())
+                .content_type(file.getContentType())
+                .build();
+
     }
 
 

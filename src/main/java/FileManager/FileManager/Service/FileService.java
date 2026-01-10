@@ -1,5 +1,6 @@
 package FileManager.FileManager.Service;
 
+import FileManager.FileManager.DTO.DownloadFileDTO;
 import FileManager.FileManager.DTO.FileEntityDTO;
 import FileManager.FileManager.Utils.ClerkUserPrincipal;
 import org.springframework.core.io.Resource;
@@ -14,7 +15,9 @@ public interface FileService {
 
     List<FileEntityDTO> uploadFiles(ClerkUserPrincipal principal , List<MultipartFile> multipartFiles);
 
-    String download(ClerkUserPrincipal principal , UUID id);
+//    String download(ClerkUserPrincipal principal , UUID id);
+
+    DownloadFileDTO downloadFile(ClerkUserPrincipal principal , UUID id);
 
     void delete(ClerkUserPrincipal principal , List<UUID> id);
 }

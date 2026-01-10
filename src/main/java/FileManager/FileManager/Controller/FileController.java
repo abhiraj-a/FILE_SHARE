@@ -1,10 +1,12 @@
 package FileManager.FileManager.Controller;
 
+import FileManager.FileManager.DTO.DownloadFileDTO;
 import FileManager.FileManager.Service.FileService;
 import FileManager.FileManager.Utils.ClerkUserPrincipal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -35,16 +37,20 @@ public class FileController {
     @GetMapping("/download/{id}")
     public ResponseEntity<?> download(@AuthenticationPrincipal ClerkUserPrincipal principal , @PathVariable UUID id){
 
-        String signedURL = fileService.download(principal, id);
+//        String signedURL = fileService.download(principal, id);
+//
+//        String encodedSignedUrl = signedURL
+//                .replace(" ", "%20")
+//                .replace("(", "%28")
+//                .replace(")", "%29");
+//
+//        String redirect = "https://nnjgyyrhidboaqvdwrwc.supabase.co/storage/v1" + encodedSignedUrl;
 
-        String encodedSignedUrl = signedURL
-                .replace(" ", "%20")
-                .replace("(", "%28")
-                .replace(")", "%29");
+        DownloadFileDTO downloadFileDTO = fileService.downloadFile(principal, id);
 
-        String redirect = "https://nnjgyyrhidboaqvdwrwc.supabase.co/storage/v1" + encodedSignedUrl;
-
-        return ResponseEntity.status(HttpStatus.FOUND).header(HttpHeaders.LOCATION,redirect).build();
+        return ResponseEntity.ok().header(     HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=\"" + downloadFileDTO.getOriginalFileName() + "\"").contentType(MediaType.parseMediaType(downloadFileDTO.getContent_type()))
+                .body(downloadFileDTO.getResource());
     }
 
     @DeleteMapping
