@@ -37,7 +37,12 @@ public class FileController {
 
         String signedURL = fileService.download(principal, id);
 
-        String redirect = "https://nnjgyyrhidboaqvdwrwc.supabase.co/storage/v1" + signedURL;
+        String encodedSignedUrl = signedURL
+                .replace(" ", "%20")
+                .replace("(", "%28")
+                .replace(")", "%29");
+
+        String redirect = "https://nnjgyyrhidboaqvdwrwc.supabase.co/storage/v1" + encodedSignedUrl;
 
         return ResponseEntity.status(HttpStatus.FOUND).header(HttpHeaders.LOCATION,redirect).build();
     }
