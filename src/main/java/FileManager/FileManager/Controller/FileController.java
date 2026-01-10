@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
 import java.util.List;
@@ -34,9 +35,12 @@ public class FileController {
     public ResponseEntity<?> download(@AuthenticationPrincipal ClerkUserPrincipal principal , @PathVariable UUID id){
 
         String signedURL = fileService.download(principal, id);
-        return ResponseEntity.status(HttpStatus.FOUND).location(URI.create(
-                "https://nnjgyyrhidboaqvdwrwc.supabase.co/storage/v1" + signedURL
-        )).build();
+
+        URI redirectUri = UriComponentsBuilder
+                .fromHttpUrl("https://nnjgyyrhidboaqvdwrwc.supabase.co/storage/v1" + signedURL)
+                .build(true)
+                .toUri();
+        return ResponseEntity.status(HttpStatus.FOUND).location(redirectUri).build();
     }
 
     @DeleteMapping
