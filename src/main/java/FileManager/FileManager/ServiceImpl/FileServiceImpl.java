@@ -69,8 +69,8 @@ public class FileServiceImpl implements FileService {
 
         for (MultipartFile file:multipartFiles) {
             if(file.isEmpty()) continue;
-            String storedfileName =UUID.randomUUID()+"_"+file.getOriginalFilename();
-            String path =owner.getId()+"/"+ "_"+storedfileName;
+            String storedfileName =UUID.randomUUID()+"_"+file.getOriginalFilename().replaceAll("[^a-zA-Z0-9._-]", "_");
+            String path =owner.getId()+"/"+storedfileName;
             String storagePath = storageService.upload(file,owner.getId() , path);
             FileEntity fileEntity = FileEntity.builder()
                     .originalFileName(file.getOriginalFilename())

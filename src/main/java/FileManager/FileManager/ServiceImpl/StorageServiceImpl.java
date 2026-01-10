@@ -56,7 +56,15 @@ public class StorageServiceImpl implements StorageService {
         String encodedpath = UriUtils.encodePath(path, StandardCharsets.UTF_8);
         return supabaseWebClient
                 .post()
-                .uri("/storage/v1/object/sign/{bucket}/{path}", bucket, path)
+//                .uri("/storage/v1/object/sign/{bucket}/{path}", bucket, path)
+                .uri(uriBuilder ->
+                uriBuilder
+                        .path("/storage/v1/object/sign/")
+                        .path(bucket)
+                        .path("/")
+                        .path(path)
+                        .build()
+                )
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .bodyValue(body)
                 .retrieve()
