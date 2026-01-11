@@ -14,7 +14,9 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -37,25 +39,18 @@ public class FileController {
     @GetMapping("/download/{id}")
     public ResponseEntity<?> download(@AuthenticationPrincipal ClerkUserPrincipal principal , @PathVariable UUID id) {
 
+        // Get signed URL from Supabase
         String signedURL = fileService.download(principal, id);
 
-//        String encodedSignedUrl = signedURL
-//                .replace(" ", "%20")
-//                .replace("(", "%28")
-//                .replace(")", "%29");
+        // Build the full download URL that browser will use directly
+        // This URL points to Supabase
+        String fullDownloadUrl = "https://nnjgyyrhidboaqvdwrwc.supabase.co/storage/v1" + signedURL;
 
-        String redirect = "https://nnjgyyrhidboaqvdwrwc.supabase.co/storage/v1" + signedURL + "&download=true";
+        // Return URL as JSON - browser will download directly from Supabase
+        Map<String, String> response = new HashMap<>();
+        response.put("downloadUrl", fullDownloadUrl);
 
-//        DownloadFileDTO downloadFileDTO = fileService.downloadFile(principal, id);
-//
-//        return ResponseEntity.ok().header(     HttpHeaders.CONTENT_DISPOSITION,
-//                        "attachment; filename=\"" + downloadFileDTO.getOriginalFileName() + "\"").contentType(MediaType.parseMediaType(downloadFileDTO.getContent_type()))
-//                .body(downloadFileDTO.getResource());
-//    }
-        return ResponseEntity.status(HttpStatus.FOUND)
-                .location(URI.create(redirect))
-                .build();
-
+        return ResponseEntity.ok(response);
     }
 
     @DeleteMapping
@@ -63,5 +58,4 @@ public class FileController {
         fileService.delete(principal,ids);
         return ResponseEntity.ok().build();
     }
-
 }
