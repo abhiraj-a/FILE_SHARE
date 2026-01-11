@@ -101,16 +101,16 @@ public class FileServiceImpl implements FileService {
         return dtos;
     }
 
-//    @Override
-//    public String download(ClerkUserPrincipal principal, UUID id) {
-//        User owner = userRepo.findByClerkId(principal.getClerkId()).orElseThrow(UserNotFoundException::new);
-//
-//        FileEntity file  = fileEntityRepo.findById(id).orElseThrow(FileNotFoundException::new);
-//
-//        if(!file.getOwner().getId().equals(owner.getId())) throw new RuntimeException("Access denied");
-//
-//        return storageService.generateSignedDownload(file.getStoragePath());
-//    }
+    @Override
+    public String download(ClerkUserPrincipal principal, UUID id) {
+        User owner = userRepo.findByClerkId(principal.getClerkId()).orElseThrow(UserNotFoundException::new);
+
+        FileEntity file  = fileEntityRepo.findById(id).orElseThrow(FileNotFoundException::new);
+
+        if(!file.getOwner().getId().equals(owner.getId())) throw new RuntimeException("Access denied");
+
+        return storageService.generateSignedDownload(file.getStoragePath());
+    }
 
     @Override
     public DownloadFileDTO downloadFile(ClerkUserPrincipal principal , UUID id){

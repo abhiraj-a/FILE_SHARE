@@ -15,7 +15,7 @@ public interface FileService {
 
     List<FileEntityDTO> uploadFiles(ClerkUserPrincipal principal , List<MultipartFile> multipartFiles);
 
-//    String download(ClerkUserPrincipal principal , UUID id);
+    String download(ClerkUserPrincipal principal , UUID id);
 
     DownloadFileDTO downloadFile(ClerkUserPrincipal principal , UUID id);
 

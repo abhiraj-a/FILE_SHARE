@@ -35,22 +35,27 @@ public class FileController {
     }
 
     @GetMapping("/download/{id}")
-    public ResponseEntity<?> download(@AuthenticationPrincipal ClerkUserPrincipal principal , @PathVariable UUID id){
+    public ResponseEntity<?> download(@AuthenticationPrincipal ClerkUserPrincipal principal , @PathVariable UUID id) {
 
-//        String signedURL = fileService.download(principal, id);
-//
+        String signedURL = fileService.download(principal, id);
+
 //        String encodedSignedUrl = signedURL
 //                .replace(" ", "%20")
 //                .replace("(", "%28")
 //                .replace(")", "%29");
+
+        String redirect = "https://nnjgyyrhidboaqvdwrwc.supabase.co/storage/v1" + signedURL + "&download=true";
+
+//        DownloadFileDTO downloadFileDTO = fileService.downloadFile(principal, id);
 //
-//        String redirect = "https://nnjgyyrhidboaqvdwrwc.supabase.co/storage/v1" + encodedSignedUrl;
+//        return ResponseEntity.ok().header(     HttpHeaders.CONTENT_DISPOSITION,
+//                        "attachment; filename=\"" + downloadFileDTO.getOriginalFileName() + "\"").contentType(MediaType.parseMediaType(downloadFileDTO.getContent_type()))
+//                .body(downloadFileDTO.getResource());
+//    }
+        return ResponseEntity.status(HttpStatus.FOUND)
+                .location(URI.create(redirect))
+                .build();
 
-        DownloadFileDTO downloadFileDTO = fileService.downloadFile(principal, id);
-
-        return ResponseEntity.ok().header(     HttpHeaders.CONTENT_DISPOSITION,
-                        "attachment; filename=\"" + downloadFileDTO.getOriginalFileName() + "\"").contentType(MediaType.parseMediaType(downloadFileDTO.getContent_type()))
-                .body(downloadFileDTO.getResource());
     }
 
     @DeleteMapping
