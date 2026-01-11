@@ -52,6 +52,7 @@ public class StorageServiceImpl implements StorageService {
 
         Map<String, Object> body = new HashMap<>();
         body.put("expiresIn", 300);
+        body.put("download" , true);
 
         String encodedpath = UriUtils.encodePath(path, StandardCharsets.UTF_8);
         return supabaseWebClient
