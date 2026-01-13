@@ -45,30 +45,30 @@ public class TransferController {
                                            ClerkUserPrincipal principal  ,
                                           @PathVariable String verificationCode){
 
-        FileTransfer transfer =fileTransferRepo.findByVerificationCode(verificationCode).orElseThrow(()->new RuntimeException("Transfer not found"));
+//        FileTransfer transfer =fileTransferRepo.findByVerificationCode(verificationCode).orElseThrow(()->new RuntimeException("Transfer not found"));
+//
+//        List<FileEntity> files = transfer.getFiles();
+//        List<Map<String,String>> response =new ArrayList<>();
+//
+//        for (FileEntity f : files){
+//            UUID id = f.getId();
+//            // Get signed URL from Supabase
+//            String signedURL = fileService.download(principal, id);
+//
+//            // Build the full download URL that browser will use directly
+//            // This URL points to Supabase
+//            String fullDownloadUrl = "https://nnjgyyrhidboaqvdwrwc.supabase.co/storage/v1" + signedURL;
+//
+//            // Return URL as JSON - browser will download directly from Supabase
+//            response.add(Map.of("downloadUrl",fullDownloadUrl));
+//        }
 
-        List<FileEntity> files = transfer.getFiles();
-        List<Map<String,String>> response =new ArrayList<>();
 
-        for (FileEntity f : files){
-            UUID id = f.getId();
-            // Get signed URL from Supabase
-            String signedURL = fileService.download(principal, id);
-
-            // Build the full download URL that browser will use directly
-            // This URL points to Supabase
-            String fullDownloadUrl = "https://nnjgyyrhidboaqvdwrwc.supabase.co/storage/v1" + signedURL;
-
-            // Return URL as JSON - browser will download directly from Supabase
-            response.add(Map.of("downloadUrl",fullDownloadUrl));
-        }
-
-
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(transferService.downloadTransfer(principal, verificationCode));
     }
 
 
-    @PutMapping("/revoke/{id}")
+    @PutMapping("/revoke/{code}")
     public ResponseEntity<?> revoke(@AuthenticationPrincipal
                                            ClerkUserPrincipal principal  ,
                                            @PathVariable UUID code){
