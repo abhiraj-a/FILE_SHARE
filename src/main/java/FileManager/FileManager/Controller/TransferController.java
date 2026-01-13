@@ -34,7 +34,7 @@ public class TransferController {
     }
 
 
-    @GetMapping("/download-zip/{verificationCode}")
+    @GetMapping("/download-transfer/{verificationCode}")
     public ResponseEntity<?> download(@AuthenticationPrincipal
                                            ClerkUserPrincipal principal  ,
                                           @PathVariable String verificationCode){
