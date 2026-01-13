@@ -113,10 +113,11 @@ public class TransferServiceImpl implements TransferService {
 
         if(transfer.isRevoked()) throw new TransferRevokedException();
 
+        String fullUrl = "https://nnjgyyrhidboaqvdwrwc.supabase.co/storage/v1";
         List<FileTransferDTO.FileDownload> downloads = transfer
                 .getFiles().stream()
                 .map(file->FileTransferDTO.FileDownload.builder()
-                        .downloadUrl(storageService.generateSignedDownload(file.getStoragePath()))
+                        .downloadUrl( fullUrl+storageService.generateSignedDownload(file.getStoragePath()))
                         .fileId(file.getId())
                         .originalFileName(file.getOriginalFileName())
                         .build()).toList();
@@ -128,8 +129,6 @@ public class TransferServiceImpl implements TransferService {
         for (UUID fileid : ids){
             fileService.download(principal,fileid);
         }
-
-
 
         return FileTransferDTO.builder()
                 .downloads(downloads)

@@ -54,7 +54,6 @@ public class StorageServiceImpl implements StorageService {
         body.put("expiresIn", 300);
         body.put("download" , true);
 
-        String encodedpath = UriUtils.encodePath(path, StandardCharsets.UTF_8);
         return supabaseWebClient
                 .post()
 //                .uri("/storage/v1/object/sign/{bucket}/{path}", bucket, path)
