@@ -48,7 +48,7 @@ public class TransferController {
         FileTransfer transfer =fileTransferRepo.findByVerificationCode(verificationCode).orElseThrow(()->new RuntimeException("Transfer not found"));
 
         List<FileEntity> files = transfer.getFiles();
-        Map<String, String> response = new HashMap<>();
+        List<Map<String,String>> response =new ArrayList<>();
 
         for (FileEntity f : files){
             UUID id = f.getId();
@@ -60,7 +60,7 @@ public class TransferController {
             String fullDownloadUrl = "https://nnjgyyrhidboaqvdwrwc.supabase.co/storage/v1" + signedURL;
 
             // Return URL as JSON - browser will download directly from Supabase
-            response.put("downloadUrl", fullDownloadUrl);
+            response.add(Map.of("downloadUrl",fullDownloadUrl));
         }
 
 
