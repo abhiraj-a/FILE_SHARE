@@ -107,7 +107,7 @@ public class FileServiceImpl implements FileService {
 
         FileEntity file  = fileEntityRepo.findById(id).orElseThrow(FileNotFoundException::new);
 
-        if(!file.getOwner().getId().equals(owner.getId())) throw new RuntimeException("Access denied");
+//        if(!file.getOwner().getId().equals(owner.getId())) throw new RuntimeException("Access denied");
 
         return storageService.generateSignedDownload(file.getStoragePath());
     }
