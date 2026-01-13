@@ -5,6 +5,7 @@ import FileManager.FileManager.Entity.FileEntity;
 import FileManager.FileManager.Entity.FileTransfer;
 import FileManager.FileManager.Entity.User;
 import FileManager.FileManager.ExceptionHandler.*;
+import FileManager.FileManager.Service.FileService;
 import FileManager.FileManager.Service.StorageService;
 import FileManager.FileManager.Utils.ClerkUserPrincipal;
 import FileManager.FileManager.Repository.FileEntityRepo;
@@ -19,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.security.SecureRandom;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -30,6 +32,7 @@ public class TransferServiceImpl implements TransferService {
     private final UserRepo userRepo;
     private final FileTransferRepo fileTransferRepo;
     private final StorageService storageService;
+    private final FileService fileService;
 
     @Override
     @Transactional
@@ -117,6 +120,15 @@ public class TransferServiceImpl implements TransferService {
                         .fileId(file.getId())
                         .originalFileName(file.getOriginalFileName())
                         .build()).toList();
+        List<UUID> ids =new ArrayList<>();
+        for (var v : downloads){
+            ids.add(v.getFileId());
+        }
+
+        for (UUID fileid : ids){
+            fileService.download(principal,fileid);
+        }
+
 
 
         return FileTransferDTO.builder()
