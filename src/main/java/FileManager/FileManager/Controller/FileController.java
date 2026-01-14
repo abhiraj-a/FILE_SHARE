@@ -44,7 +44,7 @@ public class FileController {
 
         // Build the full download URL that browser will use directly
         // This URL points to Supabase
-        String fullDownloadUrl = "https://nnjgyyrhidboaqvdwrwc.supabase.co/storage/v1" + signedURL;
+        String fullDownloadUrl = "https://nnjgyyrhidboaqvdwrwc.supabase.co/storage/v1" + signedURL+"&response-content-disposition=attachment";
 
         // Return URL as JSON - browser will download directly from Supabase
         Map<String, String> response = new HashMap<>();
