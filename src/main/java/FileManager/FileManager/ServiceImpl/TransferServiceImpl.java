@@ -101,12 +101,13 @@ public class TransferServiceImpl implements TransferService {
                         .contentType(ft.getContentType())
                         .build()).toList())
                 .fileCount(transfer.getFiles().size())
-                .downloads(transfer.getFiles().stream().map(ft->FileTransferDTO.FileDownload.builder()
-                        .originalFileName(ft.getOriginalFileName())
-                        .fileId(ft.getId())
-                        .downloadUrl(fullUrl+storageService.generateSignedDownload(ft.getStoragePath()))
-                        .build()
-                        ).toList())
+//                .downloads(transfer.getFiles().stream().map(ft->FileTransferDTO.FileDownload.builder()
+//                        .originalFileName(ft.getOriginalFileName())
+//                        .fileId(ft.getId())
+//                        .downloadUrl(fullUrl+storageService.generateSignedDownload(ft.getStoragePath()))
+//                        .build()
+//                        ).toList())
+                .downloads(null)
                 .build();
     }
 
