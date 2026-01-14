@@ -121,14 +121,6 @@ public class TransferServiceImpl implements TransferService {
                         .fileId(file.getId())
                         .originalFileName(file.getOriginalFileName())
                         .build()).toList();
-        List<UUID> ids =new ArrayList<>();
-        for (var v : downloads){
-            ids.add(v.getFileId());
-        }
-
-        for (UUID fileid : ids){
-            fileService.download(principal,fileid);
-        }
 
         return FileTransferDTO.builder()
                 .downloads(downloads)

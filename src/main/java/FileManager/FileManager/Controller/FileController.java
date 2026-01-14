@@ -48,6 +48,7 @@ public class FileController {
 
         // Return URL as JSON - browser will download directly from Supabase
         Map<String, String> response = new HashMap<>();
+
         response.put("downloadUrl", fullDownloadUrl);
 
         return ResponseEntity.ok(response);
