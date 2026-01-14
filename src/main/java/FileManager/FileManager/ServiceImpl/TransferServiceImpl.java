@@ -104,7 +104,7 @@ public class TransferServiceImpl implements TransferService {
                 .downloads(transfer.getFiles().stream().map(ft->FileTransferDTO.FileDownload.builder()
                         .originalFileName(ft.getOriginalFileName())
                         .fileId(ft.getId())
-                        .downloadUrl(fullUrl+storageService.generateSignedDownload(ft.getStoragePath()))
+                        .downloadUrl(fullUrl+storageService.generateSignedDownload(ft.getStoragePath())+"&response-content-disposition=attachment")
                         .build()
                         ).toList())
 //                .downloads(null)

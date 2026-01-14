@@ -109,7 +109,7 @@ public class FileServiceImpl implements FileService {
 
 //        if(!file.getOwner().getId().equals(owner.getId())) throw new RuntimeException("Access denied");
 
-        return storageService.generateSignedDownload(file.getStoragePath());
+        return storageService.generateSignedDownload(file.getStoragePath())+"&response-content-disposition=attachment";
     }
 
     @Override
