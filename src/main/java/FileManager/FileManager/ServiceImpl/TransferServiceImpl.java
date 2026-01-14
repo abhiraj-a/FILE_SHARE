@@ -17,6 +17,9 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.util.UriUtils;
+
+import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.time.Duration;
 import java.time.Instant;
@@ -69,7 +72,7 @@ public class TransferServiceImpl implements TransferService {
 
 
 
-    @Cacheable(value = "receive-by-code" , key = "#verificationCode")
+//    @Cacheable(value = "receive-by-code" , key = "#verificationCode")
     @Transactional(readOnly = true)
     public FileTransferDTO recieveByCode(ClerkUserPrincipal principal, String verificationCode){
 
@@ -104,10 +107,11 @@ public class TransferServiceImpl implements TransferService {
                 .downloads(transfer.getFiles().stream().map(ft->FileTransferDTO.FileDownload.builder()
                         .originalFileName(ft.getOriginalFileName())
                         .fileId(ft.getId())
-                        .downloadUrl(fullUrl+storageService.generateSignedDownload(ft.getStoragePath())+"&response-content-disposition=attachment")
+                        .downloadUrl(fullUrl+storageService.generateSignedDownload(ft.getStoragePath())+"&response-content-disposition=attachment%3B%20filename%3D%22"
+                        + UriUtils.encode(ft.getOriginalFileName(), StandardCharsets.UTF_8)
+                        +"%22"+ "&response-content-type=application%2Foctet-stream")
                         .build()
                         ).toList())
-//                .downloads(null)
                 .build();
     }
 
