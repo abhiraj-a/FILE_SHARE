@@ -87,6 +87,9 @@ public class TransferServiceImpl implements TransferService {
 
         if(transfer.getExpiresAt().isBefore(Instant.now())) throw new TransferExpiredException();
 
+        String fullUrl = "https://nnjgyyrhidboaqvdwrwc.supabase.co/storage/v1";
+
+
         return FileTransferDTO.builder()
                 .verificationCode(verificationCode)
                 .transferId(transfer.getId())
@@ -101,7 +104,7 @@ public class TransferServiceImpl implements TransferService {
                 .downloads(transfer.getFiles().stream().map(ft->FileTransferDTO.FileDownload.builder()
                         .originalFileName(ft.getOriginalFileName())
                         .fileId(ft.getId())
-                        .downloadUrl(storageService.generateSignedDownload(ft.getStoragePath()))
+                        .downloadUrl(fullUrl+storageService.generateSignedDownload(ft.getStoragePath()))
                         .build()
                         ).toList())
                 .build();
