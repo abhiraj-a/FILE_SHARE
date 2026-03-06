@@ -9,7 +9,7 @@ public interface StorageService {
 
     String upload(MultipartFile file , UUID ownerId ,String path);
 
-    String generateSignedDownload(String path);
+    String generateSignedDownload(String path,String originalFileName);
 
     void delete(String path);
 

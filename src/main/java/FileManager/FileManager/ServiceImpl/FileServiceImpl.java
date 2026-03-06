@@ -109,7 +109,7 @@ public class FileServiceImpl implements FileService {
 
 //        if(!file.getOwner().getId().equals(owner.getId())) throw new RuntimeException("Access denied");
 
-        return storageService.generateSignedDownload(file.getStoragePath());
+        return storageService.generateSignedDownload(file.getStoragePath(), file.getOriginalFileName());
     }
 
     @Override
@@ -120,7 +120,7 @@ public class FileServiceImpl implements FileService {
 
         if(!file.getOwner().getId().equals(owner.getId())) throw new RuntimeException("Access denied");
 
-        String signedDownload = storageService.generateSignedDownload(file.getStoragePath());
+        String signedDownload = storageService.generateSignedDownload(file.getStoragePath(), file.getOriginalFileName());
 
         String fullurl = "https://nnjgyyrhidboaqvdwrwc.supabase.co/storage/v1"+signedDownload;
         Resource resource =webClient.get()

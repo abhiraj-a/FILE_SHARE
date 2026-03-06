@@ -66,7 +66,7 @@ public class UserServiceImpl implements UserService {
         User newUser = User.builder()
                 .email(principal.getEmail())
                 .clerkId(principal.getClerkId())
-//                .name(principal.getName())
+//              .name(principal.getName())
                 .build();
 
         return userRepo.save(newUser);

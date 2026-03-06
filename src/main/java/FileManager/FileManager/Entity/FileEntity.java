@@ -39,9 +39,6 @@ public class FileEntity {
     @Column(nullable = false)
     private String fileType;
 
-//    @Column(nullable = false)
-//    private String mimeType;
-
     @Column(nullable = false)
     private String storagePath;
 

@@ -90,7 +90,7 @@ public class TransferServiceImpl implements TransferService {
 
         if(transfer.getExpiresAt().isBefore(Instant.now())) throw new TransferExpiredException();
 
-        String fullUrl = "https://nnjgyyrhidboaqvdwrwc.supabase.co/storage/v1";
+//        String fullUrl = "https://nnjgyyrhidboaqvdwrwc.supabase.co/storage/v1";
 
 
         return FileTransferDTO.builder()
@@ -107,9 +107,9 @@ public class TransferServiceImpl implements TransferService {
                 .downloads(transfer.getFiles().stream().map(ft->FileTransferDTO.FileDownload.builder()
                         .originalFileName(ft.getOriginalFileName())
                         .fileId(ft.getId())
-                        .downloadUrl(fullUrl+storageService.generateSignedDownload(ft.getStoragePath())+"&response-content-disposition=attachment%3B%20filename%3D%22"
-                        + UriUtils.encode(ft.getOriginalFileName(), StandardCharsets.UTF_8)
-                        +"%22"+ "&response-content-type=application%2Foctet-stream")
+                        .downloadUrl(storageService.generateSignedDownload(ft.getStoragePath(),ft.getOriginalFileName()))   //+"&response-content-disposition=attachment%3B%20filename%3D%22"
+//                        + UriUtils.encode(ft.getOriginalFileName(), StandardCharsets.UTF_8)
+//                        +"%22"+ "&response-content-type=application%2Foctet-stream")
                         .build()
                         ).toList())
                 .build();
@@ -127,11 +127,11 @@ public class TransferServiceImpl implements TransferService {
 
         if(transfer.isRevoked()) throw new TransferRevokedException();
 
-        String fullUrl = "https://nnjgyyrhidboaqvdwrwc.supabase.co/storage/v1";
+//        String fullUrl = "https://nnjgyyrhidboaqvdwrwc.supabase.co/storage/v1";
         List<FileTransferDTO.FileDownload> downloads = transfer
                 .getFiles().stream()
                 .map(file->FileTransferDTO.FileDownload.builder()
-                        .downloadUrl( fullUrl+storageService.generateSignedDownload(file.getStoragePath()))
+                        .downloadUrl(storageService.generateSignedDownload(file.getStoragePath(),file.getOriginalFileName()))
                         .fileId(file.getId())
                         .originalFileName(file.getOriginalFileName())
                         .build()).toList();

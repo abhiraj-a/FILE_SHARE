@@ -32,8 +32,6 @@ public class FileTransfer {
     @Column(nullable = false)
     private Instant expiresAt;
 
-//    private long downloadCount;
-
     @Column(nullable = false)
     private boolean revoked;
 
