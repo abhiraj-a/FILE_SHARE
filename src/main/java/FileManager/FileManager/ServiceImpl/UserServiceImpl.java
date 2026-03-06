@@ -19,15 +19,10 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
-
     private final UserRepo userRepo;
-
     private final FileEntityRepo fileEntityRepo;
-
     private final ClerkClient client;
-
     private final FileTransferRepo fileTransferRepo;
-
     private final StorageService storageService;
 
     @Override
@@ -56,10 +51,7 @@ public class UserServiceImpl implements UserService {
         userRepo.delete(user);
     }
 
-    @Override
-    public void requestAccountDeletion(ClerkUserPrincipal principal) {
-        client.deleteUser(principal);
-    }
+
 
 
     private User create(ClerkUserPrincipal principal){

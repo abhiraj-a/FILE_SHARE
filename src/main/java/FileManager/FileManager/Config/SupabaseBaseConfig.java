@@ -6,20 +6,20 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.http.HttpHeaders;
 
-@Configuration
+//@Configuration
 public class SupabaseBaseConfig {
 
-    @Value("${supabase.url}")
-    private String url;
-
-    @Value("${supabase.service-key}")
-    private String serviceKey;
-    @Bean
-    public WebClient supaBaseWebClient(){
-        return WebClient.builder()
-                .baseUrl(url)
-                .defaultHeader(HttpHeaders.AUTHORIZATION , "Bearer "+serviceKey)
-                .defaultHeader("apikey", serviceKey)
-                .build();
-    }
+//    @Value("${supabase.url}")
+//    private String url;
+//
+//    @Value("${supabase.service-key}")
+//    private String serviceKey;
+//    @Bean
+//    public WebClient supaBaseWebClient(){
+//        return WebClient.builder()
+//                .baseUrl(url)
+//                .defaultHeader(HttpHeaders.AUTHORIZATION , "Bearer "+serviceKey)
+//                .defaultHeader("apikey", serviceKey)
+//                .build();
+//    }
 }

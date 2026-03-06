@@ -1,25 +1,17 @@
 package FileManager.FileManager.ServiceImpl;
 import FileManager.FileManager.Service.StorageService;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.svix.internal.ApiException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.reactive.function.client.WebClient;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
-
-import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
@@ -30,15 +22,14 @@ import java.util.UUID;
 @Slf4j
 public class StorageServiceImpl implements StorageService {
 
-    private final WebClient supabaseWebClient;
+//
+
     private final S3Client s3Client;
     private final S3Presigner s3Presigner;
 
     @Value("${aws.s3.bucket}")
     private String bucket;
 
-//    @Value("${supabase.bucket}")
-//    private String bucket;
 
     @Override
     public String upload(MultipartFile file, UUID ownerId , String path) {
@@ -118,10 +109,17 @@ public class StorageServiceImpl implements StorageService {
 
     @Override
     public void delete(String path) {
-        supabaseWebClient.delete()
-                .uri("/storage/v1/object/{bucket}/{path}", bucket, path)
-                .retrieve()
-                .toBodilessEntity()
-                .block();
+
+        DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder()
+                .bucket(bucket)
+                .key(path)
+                .build();
+
+        s3Client.deleteObject(deleteObjectRequest);
+//        supabaseWebClient.delete()
+//                .uri("/storage/v1/object/{bucket}/{path}", bucket, path)
+//                .retrieve()
+//                .toBodilessEntity()
+//                .block();
     }
 }

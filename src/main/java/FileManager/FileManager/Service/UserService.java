@@ -8,5 +8,5 @@ public interface UserService {
 
      void deleteUserByClerkId(String clerkId);
 
-    void requestAccountDeletion(ClerkUserPrincipal principal);
+//    void requestAccountDeletion(ClerkUserPrincipal principal);
 }

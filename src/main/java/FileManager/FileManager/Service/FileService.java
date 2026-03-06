@@ -17,7 +17,5 @@ public interface FileService {
 
     String download(ClerkUserPrincipal principal , UUID id);
 
-    DownloadFileDTO downloadFile(ClerkUserPrincipal principal , UUID id);
-
     void delete(ClerkUserPrincipal principal , List<UUID> id);
 }
