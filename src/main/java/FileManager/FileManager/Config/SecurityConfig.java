@@ -39,7 +39,8 @@ public class SecurityConfig {
                 )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers("/health", "/user/signup", "/api/webhooks/**").permitAll()
+                        .requestMatchers("/health",  "/api/webhooks/**").permitAll()
+                        .requestMatchers("/user.signup").authenticated()
                         .requestMatchers("/files/download/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/files/upload").authenticated()
                         .anyRequest().authenticated()

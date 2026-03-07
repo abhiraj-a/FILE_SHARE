@@ -170,6 +170,8 @@ public class ClerkAuthenticationFilter extends OncePerRequestFilter {
         } catch (Exception ex) {
             ex.printStackTrace();
             SecurityContextHolder.clearContext();
+            response.sendError(HttpServletResponse.SC_FORBIDDEN , "Unauthorized");
+            return;
         }
 
         filterChain.doFilter(request, response);
