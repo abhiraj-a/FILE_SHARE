@@ -24,7 +24,7 @@ public class User {
     @Column(unique = true,nullable = false)
     private String clerkId;
 
-    @Column(unique = true)
+    @Column
     private String email;
 
 

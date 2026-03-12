@@ -23,6 +23,7 @@ public class FileController {
 
     @GetMapping("/get-All-Files")
     public ResponseEntity<?> getAllFiles(@AuthenticationPrincipal ClerkUserPrincipal principal) {
+        log.warn("Clerk id : " + principal.getClerkId());
         return ResponseEntity.ok(fileService.getAllFiles(principal));
     }
 
@@ -30,6 +31,7 @@ public class FileController {
     public ResponseEntity<?> uploadFiles(@AuthenticationPrincipal ClerkUserPrincipal principal, @RequestPart("files") List<MultipartFile> files) {
 
         log.warn("File controller reached");
+        log.warn("Clerk id : " + principal.getClerkId());
         return ResponseEntity.ok(fileService.uploadFiles(principal, files));
 
     }

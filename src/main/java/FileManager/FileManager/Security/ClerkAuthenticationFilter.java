@@ -99,6 +99,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -112,6 +113,7 @@ import java.util.Collections;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class ClerkAuthenticationFilter extends OncePerRequestFilter {
 
     private final UserRepo userRepo;
@@ -127,6 +129,7 @@ public class ClerkAuthenticationFilter extends OncePerRequestFilter {
             FilterChain filterChain
     ) throws ServletException, IOException {
 
+        log.warn("Filter initiated");
         try {
             String authHeader = request.getHeader("Authorization");
 
@@ -182,7 +185,6 @@ public class ClerkAuthenticationFilter extends OncePerRequestFilter {
             }
 
         } catch (Exception ex) {
-            ex.printStackTrace();
             SecurityContextHolder.clearContext();
             response.sendError(HttpServletResponse.SC_FORBIDDEN , "Unauthorized");
             return;
