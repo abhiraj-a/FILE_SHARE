@@ -35,6 +35,7 @@ public class User {
     private int credits=1000;
 
     @Column(updatable = false)
+    @Builder.Default
     private Instant trialExpiresAt=Instant.now().plus(3, ChronoUnit.DAYS);
 
     private boolean isDeleted;
