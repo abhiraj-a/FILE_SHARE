@@ -34,6 +34,5 @@ public interface FileTransferRepo extends JpaRepository<FileTransfer, UUID> {
             nativeQuery = true
     )
     int deleteJoinRowsByUser(@Param("userId") UUID userId);
-
     List<FileTransfer> findAllByFiles_Id(UUID id);
 }

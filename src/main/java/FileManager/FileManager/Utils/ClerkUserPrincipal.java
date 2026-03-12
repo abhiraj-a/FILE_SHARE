@@ -13,5 +13,5 @@ public class ClerkUserPrincipal {
 
     private String email;
 
-//    private String name;
+    private String name;
 }

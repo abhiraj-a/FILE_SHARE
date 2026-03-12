@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.UUID;
 
 @Entity
@@ -25,5 +27,15 @@ public class User {
     @Column(unique = true)
     private String email;
 
+
     private String name;
+
+    @Column
+    @Builder.Default
+    private int credits=1000;
+
+    @Column(updatable = false)
+    private Instant trialExpiresAt=Instant.now().plus(3, ChronoUnit.DAYS);
+
+    private boolean isDeleted;
 }

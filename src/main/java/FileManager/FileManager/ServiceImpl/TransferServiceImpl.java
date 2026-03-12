@@ -11,6 +11,7 @@ import FileManager.FileManager.Repository.FileEntityRepo;
 import FileManager.FileManager.Repository.FileTransferRepo;
 import FileManager.FileManager.Repository.UserRepo;
 import FileManager.FileManager.Service.TransferService;
+import FileManager.FileManager.Utils.CreditCalculator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
@@ -43,6 +44,17 @@ public class TransferServiceImpl implements TransferService {
 
         for(FileEntity f : files){
             if(!f.getOwner().getId().equals(owner.getId())) throw new ForbiddenException();
+        }
+
+        boolean onTrial = owner.getTrialExpiresAt()!=null&&owner.getTrialExpiresAt().isAfter(Instant.now());
+
+        if(!onTrial){
+            int cost = files.stream().mapToInt(f->CreditCalculator.calculate(f.getFileSize())).sum();
+            if(owner.getCredits()<cost){
+                throw new RuntimeException("Insufficient credits");
+            }
+            owner.setCredits(owner.getCredits()-cost);
+            userRepo.saveAndFlush(owner);
         }
         FileTransfer transfer = FileTransfer.builder()
                 .owner(owner)

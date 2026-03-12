@@ -5,11 +5,13 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.svix.Webhook;
 import com.svix.exceptions.WebhookVerificationException;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.net.http.HttpHeaders;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 
@@ -24,13 +26,22 @@ public class ClerkWebHookController {
 
     @PostMapping("/clerk")
     public ResponseEntity<?> handleClerk(
-            @RequestHeader("svix-id")String svixId,
-            @RequestHeader("svix-signature")String svixSignature,
-            @RequestHeader("svix-timestamp")String svixTimestamp,
-            @RequestBody String payload
-    ){
+            @RequestHeader(value = "svix-id" , required = false)String svixId,
+            @RequestHeader(value = "svix-signature",required = false)String svixSignature,
+            @RequestHeader(value = "svix-timestamp",required = false)String svixTimestamp,
+            HttpServletRequest request
+    ) {
+        if (svixId == null || svixSignature == null || svixTimestamp == null) {
+            return ResponseEntity.badRequest().body("Missing Svix headers");
+        }
 
         try {
+            String payload = new String(request.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
+
+            if (payload.isBlank()) {
+                return ResponseEntity.ok().build(); // Clerk ping, just acknowledge
+            }
+
             verifyWebhook(svixId,svixSignature,svixTimestamp,payload);
 
             ObjectMapper mapper =new ObjectMapper();

@@ -8,7 +8,7 @@ public class ClerkClient {
 
     private final WebClient  webClient;
 
-    public ClerkClient(@Value("${clerk.secret-key}") String clerkSecretKey){
+    public ClerkClient(@Value("${clerk.api-secret}") String clerkSecretKey){
         this.webClient = WebClient.builder()
                 .baseUrl("https://api.clerk.com/v1")
                 .defaultHeader("Authorization" , "Bearer "+clerkSecretKey)

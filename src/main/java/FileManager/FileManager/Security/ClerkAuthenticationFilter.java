@@ -88,6 +88,7 @@
 
 package FileManager.FileManager.Security;
 
+import FileManager.FileManager.Repository.UserRepo;
 import FileManager.FileManager.Utils.ClerkUserPrincipal;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -113,6 +114,7 @@ import java.util.Collections;
 @RequiredArgsConstructor
 public class ClerkAuthenticationFilter extends OncePerRequestFilter {
 
+    private final UserRepo userRepo;
     @Value("${clerk.issuer}")
     private String clerkIssuer;
 
@@ -153,7 +155,8 @@ public class ClerkAuthenticationFilter extends OncePerRequestFilter {
                 ClerkUserPrincipal principal =
                         new ClerkUserPrincipal(
                                 claims.getSubject(),
-                                claims.get("email", String.class)
+                                claims.get("email", String.class),
+                                claims.get("name", String.class)
                         );
 
                 UsernamePasswordAuthenticationToken authentication =
@@ -162,6 +165,17 @@ public class ClerkAuthenticationFilter extends OncePerRequestFilter {
                                 null,
                                 Collections.emptyList()
                         );
+
+                userRepo.findByClerkId(principal.getClerkId()).ifPresent(u->{
+                    if(u.isDeleted()){
+                        try {
+                            response.sendError(HttpServletResponse.SC_FORBIDDEN,"Account deleted");
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                        return;
+                    }
+                });
 
                 SecurityContextHolder.getContext()
                         .setAuthentication(authentication);
