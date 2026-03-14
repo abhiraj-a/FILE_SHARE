@@ -5,8 +5,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-
-import java.io.File;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -35,4 +33,6 @@ public interface FileTransferRepo extends JpaRepository<FileTransfer, UUID> {
     )
     int deleteJoinRowsByUser(@Param("userId") UUID userId);
     List<FileTransfer> findAllByFiles_Id(UUID id);
+
+    Optional<FileTransfer> findByTransferId(String transferId);
 }

@@ -6,7 +6,7 @@ import FileManager.FileManager.Entity.User;
 import FileManager.FileManager.ExceptionHandler.ApiException;
 import FileManager.FileManager.Repository.FileTransferRepo;
 import FileManager.FileManager.Repository.TriedEmailRepo;
-import FileManager.FileManager.Service.StorageService;
+import FileManager.FileManager.Service.StorageServiceImpl;
 import FileManager.FileManager.Utils.ClerkClient;
 import FileManager.FileManager.Utils.ClerkUserPrincipal;
 import FileManager.FileManager.Repository.FileEntityRepo;
@@ -28,7 +28,7 @@ public class UserServiceImpl implements UserService {
     private final FileEntityRepo fileEntityRepo;
     private final ClerkClient client;
     private final FileTransferRepo fileTransferRepo;
-    private final StorageService storageService;
+    private final StorageServiceImpl storageServiceImpl;
     private final TriedEmailRepo triedEmailRepo;
 
     @Override
@@ -81,7 +81,7 @@ public class UserServiceImpl implements UserService {
 
         List<FileEntity> files = fileEntityRepo.findAllByOwnerId(user.getId());
         for (FileEntity f : files) {
-            storageService.delete(f.getStoragePath());
+            storageServiceImpl.delete(f.getStoragePath());
         }
         fileEntityRepo.deleteFilesByUser(user.getId());
         fileEntityRepo.flush();

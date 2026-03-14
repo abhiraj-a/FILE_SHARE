@@ -7,7 +7,6 @@ import FileManager.FileManager.ExceptionHandler.FileNotFoundException;
 import FileManager.FileManager.ExceptionHandler.ForbiddenException;
 import FileManager.FileManager.ExceptionHandler.UserNotFoundException;
 import FileManager.FileManager.Repository.FileTransferRepo;
-import FileManager.FileManager.Service.StorageService;
 import FileManager.FileManager.Utils.ClerkUserPrincipal;
 import FileManager.FileManager.Repository.FileEntityRepo;
 import FileManager.FileManager.Repository.UserRepo;
@@ -17,8 +16,6 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -29,7 +26,7 @@ public class FileServiceImpl implements FileService {
 
     private final UserRepo userRepo;
     private  final FileEntityRepo fileEntityRepo;
-    private final StorageService storageService;
+    private final StorageServiceImpl storageServiceImpl;
     private final FileTransferRepo fileTransferRepo;
 //
 
@@ -56,48 +53,48 @@ public class FileServiceImpl implements FileService {
         return dtos;
     }
 
-    @Override
-    @CacheEvict(value = "files" ,key = "#principal.clerkId")
-    @Transactional
-    public List<FileEntityDTO> uploadFiles(ClerkUserPrincipal principal, List<MultipartFile> multipartFiles) {
-        User owner = userRepo.findByClerkId(principal.getClerkId()).orElseThrow(UserNotFoundException::new);
-
-        List<FileEntityDTO> dtos =new ArrayList<>();
-
-        for (MultipartFile file:multipartFiles) {
-            if(file.isEmpty()) continue;
-            String storedfileName =UUID.randomUUID()+"_"+file.getOriginalFilename().replaceAll("[^a-zA-Z0-9._-]", "_");
-            String path =owner.getId()+"/"+storedfileName;
-            String storagePath = storageService.upload(file,owner.getId() , path);
-            FileEntity fileEntity = FileEntity.builder()
-                    .originalFileName(file.getOriginalFilename())
-                    .fileType(file.getContentType())
-                    .fileSize(file.getSize())
-                    .createdAt(Instant.now())
-                    .storagePath(storagePath)
-                    .contentType(file.getContentType())
-                    .storedFileName(storedfileName)
-                    .owner(owner)
-                    .build();
-          FileEntity savedFile  =  fileEntityRepo.save(fileEntity);
-
-          dtos.add(FileEntityDTO.builder()
-                  .uploadedAt(savedFile.getCreatedAt())
-                  .fileId(savedFile.getId())
-                  .originalFileName(savedFile.getOriginalFileName())
-                  .fileSize(savedFile.getFileSize())
-                  .build());
-        }
-
-        return dtos;
-    }
+//    @Override
+//    @CacheEvict(value = "files" ,key = "#principal.clerkId")
+//    @Transactional
+//    public List<FileEntityDTO> uploadFiles(ClerkUserPrincipal principal, List<MultipartFile> multipartFiles) {
+//        User owner = userRepo.findByClerkId(principal.getClerkId()).orElseThrow(UserNotFoundException::new);
+//
+//        List<FileEntityDTO> dtos =new ArrayList<>();
+//
+//        for (MultipartFile file:multipartFiles) {
+//            if(file.isEmpty()) continue;
+//            String storedfileName =UUID.randomUUID()+"_"+file.getOriginalFilename().replaceAll("[^a-zA-Z0-9._-]", "_");
+//            String path =owner.getId()+"/"+storedfileName;
+//            String storagePath = storageServiceImpl.upload(file,owner.getId() , path);
+//            FileEntity fileEntity = FileEntity.builder()
+//                    .originalFileName(file.getOriginalFilename())
+//                    .fileType(file.getContentType())
+//                    .fileSize(file.getSize())
+//                    .createdAt(Instant.now())
+//                    .storagePath(storagePath)
+//                    .contentType(file.getContentType())
+//                    .storedFileName(storedfileName)
+//                    .owner(owner)
+//                    .build();
+//          FileEntity savedFile  =  fileEntityRepo.save(fileEntity);
+//
+//          dtos.add(FileEntityDTO.builder()
+//                  .uploadedAt(savedFile.getCreatedAt())
+//                  .fileId(savedFile.getId())
+//                  .originalFileName(savedFile.getOriginalFileName())
+//                  .fileSize(savedFile.getFileSize())
+//                  .build());
+//        }
+//
+//        return dtos;
+//    }
 
     @Override
     public String download(ClerkUserPrincipal principal, UUID id) {
         User owner = userRepo.findByClerkId(principal.getClerkId()).orElseThrow(UserNotFoundException::new);
         FileEntity file  = fileEntityRepo.findById(id).orElseThrow(FileNotFoundException::new);
         if(!file.getOwner().getId().equals(owner.getId())) throw new RuntimeException("Access denied");
-        return storageService.generateSignedDownload(file.getStoragePath(), file.getOriginalFileName());
+        return storageServiceImpl.generateSignedDownload(file.getStoragePath(), file.getOriginalFileName());
     }
 
 
@@ -149,7 +146,7 @@ public class FileServiceImpl implements FileService {
 
             for (FileEntity file  : filesToDelete){
             String p = file.getStoragePath();
-            storageService.delete(p);
+            storageServiceImpl.delete(p);
         }
         fileEntityRepo.deleteAll(filesToDelete);
     }

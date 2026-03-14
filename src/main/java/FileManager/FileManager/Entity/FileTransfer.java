@@ -22,6 +22,11 @@ public class FileTransfer {
     @GeneratedValue
     private UUID id;
 
+
+    private String transferId;
+
+    private String status;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id" , nullable = false)
     private User owner;
@@ -42,5 +47,8 @@ public class FileTransfer {
             inverseJoinColumns = @JoinColumn(name = "file_id")
     )
     private List<FileEntity> files;
+
+
+    private Instant downloadedAt;
 
 }
