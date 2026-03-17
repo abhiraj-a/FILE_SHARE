@@ -9,7 +9,7 @@ import java.util.UUID;
 @Builder
 public class UserDTO {
 
-    private UUID id;
+    private String clerkId;
     private String email;
     private String name;
     private int credits;

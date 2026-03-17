@@ -15,11 +15,13 @@ import FileManager.FileManager.Service.UserService;
 import FileManager.FileManager.Utils.Hash;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -73,7 +75,7 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public void deleteUserByClerkId(String clerkId) {
-        User user = userRepo.findByClerkId(clerkId).orElseThrow(()->new RuntimeException("User not found"));
+        User user = userRepo.findByClerkId(clerkId).orElseThrow(()->new UsernameNotFoundException("User not found"));
 
         int joinRows = fileTransferRepo.deleteJoinRowsByUser(user.getId());
 //        System.out.println("Deleted join rows = " + joinRows);
@@ -92,11 +94,24 @@ public class UserServiceImpl implements UserService {
 
     }
 
+    @Override
+    public Map<String, Integer> getCredits(ClerkUserPrincipal principal) {
+        User user = userRepo.findByClerkId(principal.getClerkId()).orElseThrow(()->new UsernameNotFoundException("User not found"));
+        return Map.of("Credits",user.getCredits());
+    }
+
+    @Override
+    public UserDTO getUser(ClerkUserPrincipal principal) {
+        User user = userRepo.findByClerkId(principal.getClerkId()).orElseThrow(()->new UsernameNotFoundException("User not found"));
+        return toDTO(user);
+    }
+
 
     private UserDTO toDTO(User user){
-        return UserDTO.builder().email(user.getEmail())
+        return UserDTO.builder()
+                .email(user.getEmail())
                 .name(user.getName())
-                .id(user.getId())
+                .clerkId(user.getClerkId())
                 .credits(user.getCredits())
                 .build();
     }

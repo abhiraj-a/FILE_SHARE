@@ -6,10 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/user")
@@ -32,4 +29,13 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
 
+    @GetMapping("/credits")
+    public ResponseEntity<?> getCredits(@AuthenticationPrincipal ClerkUserPrincipal principal){
+        return ResponseEntity.ok(userService.getCredits(principal));
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<?> getUser(@AuthenticationPrincipal ClerkUserPrincipal principal){
+        return ResponseEntity.ok(userService.getUser(principal));
+    }
 }

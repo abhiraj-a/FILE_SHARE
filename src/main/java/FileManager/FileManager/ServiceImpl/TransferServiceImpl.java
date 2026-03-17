@@ -266,6 +266,7 @@ public class TransferServiceImpl  {
         return TransferCompletionDTO.builder()
                 .verificationCode(transfer.getVerificationCode())
                 .expiresAt(transfer.getExpiresAt())
+                .transferId(transferId)
                 .build();
     }
 }
