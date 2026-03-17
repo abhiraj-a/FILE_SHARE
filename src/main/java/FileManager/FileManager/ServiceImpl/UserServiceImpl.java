@@ -6,7 +6,7 @@ import FileManager.FileManager.Entity.User;
 import FileManager.FileManager.ExceptionHandler.ApiException;
 import FileManager.FileManager.Repository.FileTransferRepo;
 import FileManager.FileManager.Repository.TriedEmailRepo;
-import FileManager.FileManager.Service.StorageServiceImpl;
+import FileManager.FileManager.ServiceImpl.StorageServiceImpl;
 import FileManager.FileManager.Utils.ClerkClient;
 import FileManager.FileManager.Utils.ClerkUserPrincipal;
 import FileManager.FileManager.Repository.FileEntityRepo;

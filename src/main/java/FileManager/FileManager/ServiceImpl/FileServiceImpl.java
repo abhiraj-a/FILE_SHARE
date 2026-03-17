@@ -16,6 +16,8 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -51,6 +53,11 @@ public class FileServiceImpl implements FileService {
         }
 
         return dtos;
+    }
+
+    @Override
+    public List<FileEntityDTO> uploadFiles(ClerkUserPrincipal principal, List<MultipartFile> multipartFiles) {
+        return List.of();
     }
 
 //    @Override

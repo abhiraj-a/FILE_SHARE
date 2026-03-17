@@ -47,8 +47,6 @@ public class FileTransfer {
             inverseJoinColumns = @JoinColumn(name = "file_id")
     )
     private List<FileEntity> files;
-
-
     private Instant downloadedAt;
 
 }

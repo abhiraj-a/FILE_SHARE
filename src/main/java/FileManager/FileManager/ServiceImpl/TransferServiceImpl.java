@@ -31,7 +31,7 @@ import java.util.*;
 
 @Service
 @RequiredArgsConstructor
-public class TransferServiceImpl /*implements TransferService*/ {
+public class TransferServiceImpl  {
 
     private final FileEntityRepo fileEntityRepo;
     private final UserRepo userRepo;
@@ -40,7 +40,7 @@ public class TransferServiceImpl /*implements TransferService*/ {
     private final S3Presigner s3Presigner;
     private final S3Client s3Client;
     @Value("${S3_BUCKET_NAME}")
-    private final String bucket;
+    private  String bucket;
 
 //    @Transactional
 //    public FileTransferDTO transferFiles(ClerkUserPrincipal principal, List<UUID> fileIds) {
@@ -192,6 +192,7 @@ public class TransferServiceImpl /*implements TransferService*/ {
                    .originalFileName(f.getOriginalFileName())
                    .fileSize(f.getFileSize())
                    .storagePath(key)
+                   .createdAt(Instant.now())
                    .owner(owner)
                    .build();
 
@@ -222,6 +223,7 @@ public class TransferServiceImpl /*implements TransferService*/ {
                 .revoked(false)
                 .expiresAt(Instant.now().plus(30, ChronoUnit.MINUTES))
                 .transferId(IdGenerator.generateTransferId())
+                .status("pending")
                 .build();
 
         fileTransferRepo.save(transfer);

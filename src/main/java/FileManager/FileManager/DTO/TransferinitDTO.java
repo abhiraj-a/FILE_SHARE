@@ -10,5 +10,6 @@ import lombok.*;
 public class TransferinitDTO {
     private String originalFileName;
     private long fileSize;
+    private String fileType;
     private String contentType;
 }

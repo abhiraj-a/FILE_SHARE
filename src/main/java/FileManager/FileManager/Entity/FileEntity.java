@@ -30,16 +30,16 @@ public class FileEntity {
     @JoinColumn(name = "owner_id" ,nullable = false)
     private User owner;
 
-    @Column(nullable = false , unique = true)
+    @Column(nullable = true , unique = true)
     private String storedFileName;
 
     @Column(updatable = false , nullable = false)
     private Instant createdAt;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private String fileType;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private String storagePath;
 
     @Column(nullable = false)
