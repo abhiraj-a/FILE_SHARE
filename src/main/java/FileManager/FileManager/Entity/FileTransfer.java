@@ -22,7 +22,6 @@ public class FileTransfer {
     @GeneratedValue
     private UUID id;
 
-
     private String transferId;
 
     private String status;

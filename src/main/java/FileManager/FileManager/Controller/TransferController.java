@@ -63,12 +63,19 @@ public class TransferController {
         return ResponseEntity.ok(transferService.init(principal,files));
     }
 
-    @PostMapping("/init-ransfer/confirm")
+    @PostMapping("/init-transfer/confirm")
     public ResponseEntity<?> confirm(@AuthenticationPrincipal
     ClerkUserPrincipal principal , String transferId){
         return ResponseEntity.ok(transferService.confirm(principal,transferId));
     }
 
+
+
+    @GetMapping("/ongoing-transfers")
+    public ResponseEntity<?> ongoing(@AuthenticationPrincipal
+                                     ClerkUserPrincipal principal){
+        return ResponseEntity.ok(transferService.ongoing(principal));
+    }
 
 
 

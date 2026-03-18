@@ -269,4 +269,27 @@ public class TransferServiceImpl  {
                 .transferId(transferId)
                 .build();
     }
+
+    public List<OngoingTransferDTO> ongoing(ClerkUserPrincipal principal) {
+        User user  = userRepo.findByClerkId(principal.getClerkId()).orElseThrow(UserNotFoundException::new);
+        List<FileTransfer> transfers =fileTransferRepo.findAllByOwnerAndNotRevoked(user);
+        List<OngoingTransferDTO> transferDTOS =new ArrayList<>();
+        for (var t : transfers){
+            transferDTOS.add((OngoingTransferDTO) transfers.stream().map(f->OngoingTransferDTO.builder()
+                    .transferId(t.getTransferId())
+                    .fileCount(t.getFiles().size())
+                    .expiresAt(t.getExpiresAt())
+                    .isRevoked(t.isRevoked())
+                    .verificationCode(t.getVerificationCode())
+                    .fileMetaDataList(t.getFiles().stream().map(fe->OngoingTransferDTO.FileMetaData
+                            .builder()
+                            .originalFileName(fe.getOriginalFileName())
+                            .fileSize(fe.getFileSize())
+                            .contentType(fe.getContentType())
+                            .build()).toList())
+                    .build()
+            ));
+        }
+        return transferDTOS;
+    }
 }

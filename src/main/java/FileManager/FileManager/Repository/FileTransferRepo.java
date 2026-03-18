@@ -1,6 +1,7 @@
 package FileManager.FileManager.Repository;
 
 import FileManager.FileManager.Entity.FileTransfer;
+import FileManager.FileManager.Entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -35,4 +36,6 @@ public interface FileTransferRepo extends JpaRepository<FileTransfer, UUID> {
     List<FileTransfer> findAllByFiles_Id(UUID id);
 
     Optional<FileTransfer> findByTransferId(String transferId);
+
+    List<FileTransfer> findAllByOwnerAndNotRevoked(User user);
 }
