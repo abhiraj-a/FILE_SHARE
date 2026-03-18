@@ -152,17 +152,22 @@ public class TransferServiceImpl  {
 
 
     @CacheEvict(value = "receive-by-code"   ,allEntries = true)
-    public void revokeTransfer(ClerkUserPrincipal principal, UUID fileTransferId) {
+    public void revokeTransfer(ClerkUserPrincipal principal, String fileTransferId) {
 
         User owner  = userRepo.findByClerkId(principal.getClerkId()).orElseThrow(UserNotFoundException::new);
-        FileTransfer transfer  = fileTransferRepo.findById(fileTransferId).orElseThrow(
+        FileTransfer transfer  = fileTransferRepo.findByTransferId(fileTransferId).orElseThrow(
                 TransferNotFoundException::new);
 
         if(!transfer.getOwner().getId().equals(owner.getId())) throw new ForbiddenException();
 
         if(!transfer.isRevoked()){
             transfer.setRevoked(true);
+            transfer.setExpiresAt(Instant.now());
             fileTransferRepo.save(transfer);
+        }
+        List<FileEntity> files= transfer.getFiles();
+        for (FileEntity f : files){
+            storageServiceImpl.delete(f.getStoragePath());
         }
     }
 
@@ -272,10 +277,10 @@ public class TransferServiceImpl  {
 
     public List<OngoingTransferDTO> ongoing(ClerkUserPrincipal principal) {
         User user  = userRepo.findByClerkId(principal.getClerkId()).orElseThrow(UserNotFoundException::new);
-        List<FileTransfer> transfers =fileTransferRepo.findAllByOwnerAndNotRevoked(user);
+        List<FileTransfer> transfers =fileTransferRepo.findAllByOwnerAndExpiresAtIsAfter(user,Instant.now());
         List<OngoingTransferDTO> transferDTOS =new ArrayList<>();
         for (var t : transfers){
-            transferDTOS.add((OngoingTransferDTO) transfers.stream().map(f->OngoingTransferDTO.builder()
+            transferDTOS.add(OngoingTransferDTO.builder()
                     .transferId(t.getTransferId())
                     .fileCount(t.getFiles().size())
                     .expiresAt(t.getExpiresAt())
@@ -288,7 +293,7 @@ public class TransferServiceImpl  {
                             .contentType(fe.getContentType())
                             .build()).toList())
                     .build()
-            ));
+            );
         }
         return transferDTOS;
     }

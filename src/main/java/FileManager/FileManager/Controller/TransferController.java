@@ -51,7 +51,7 @@ public class TransferController {
     @PutMapping("/revoke/{code}")
     public ResponseEntity<?> revoke(@AuthenticationPrincipal
                                            ClerkUserPrincipal principal  ,
-                                           @PathVariable UUID code){
+                                           @PathVariable String code){
         transferService.revokeTransfer(principal,code);
         return ResponseEntity.ok().build();
     }

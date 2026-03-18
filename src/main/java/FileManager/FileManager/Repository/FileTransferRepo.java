@@ -6,6 +6,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -37,5 +39,5 @@ public interface FileTransferRepo extends JpaRepository<FileTransfer, UUID> {
 
     Optional<FileTransfer> findByTransferId(String transferId);
 
-    List<FileTransfer> findAllByOwnerAndNotRevoked(User user);
+    List<FileTransfer> findAllByOwnerAndExpiresAtIsAfter(User user, Instant instant);
 }

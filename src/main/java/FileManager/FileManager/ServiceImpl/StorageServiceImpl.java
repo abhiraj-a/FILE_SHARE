@@ -52,7 +52,7 @@ public class StorageServiceImpl {
                 .bucket(bucket)
                 .key(path)
                 .build();
-
+        log.info("Deleting file : "+  path);
         s3Client.deleteObject(deleteObjectRequest);
     }
 }
