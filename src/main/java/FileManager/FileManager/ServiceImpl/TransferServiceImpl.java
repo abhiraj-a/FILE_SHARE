@@ -300,8 +300,7 @@ public class TransferServiceImpl  {
 
 
     @Transactional
-    public List<MultipartInitResponse>
-    init(ClerkUserPrincipal principal, List<TransferinitDTO> files) {
+    public InitMultiDTO init(ClerkUserPrincipal principal, List<TransferinitDTO> files) {
         User owner = userRepo.findByClerkId(principal.getClerkId()).orElseThrow(UserNotFoundException::new);
         boolean emailonTrial = principal.getEmail() != null && owner.getTrialExpiresAt().isAfter(Instant.now());
         if (!emailonTrial) {
@@ -341,10 +340,13 @@ public class TransferServiceImpl  {
 
         fileTransferRepo.save(transfer);
         fileEntityRepo.saveAll(fileEntities);
-        return multipartInitResponseList;
+        return InitMultiDTO.builder()
+                .multipartInitResponseList(multipartInitResponseList)
+                .transferId(transfer.getTransferId())
+                .build();
     }
 
-    public MultipartInitResponse multipartInitResponse(FileEntity file){
+    public MultipartInitResponse multipartInitResponse(FileEntity file) {
         String s3Key = file.getStoragePath();
         CreateMultipartUploadRequest multipartUploadRequest = CreateMultipartUploadRequest.builder()
                 .bucket(bucket)
@@ -354,11 +356,11 @@ public class TransferServiceImpl  {
 
         CreateMultipartUploadResponse createResponse = s3Client.createMultipartUpload(multipartUploadRequest);
         String uploadId = createResponse.uploadId();
-        long chunkSize = 1024*1024*5;   //5MB
-        long parts = (long) Math.ceil((double) file.getFileSize() /chunkSize);
-        List<String> presignedUrls =new ArrayList<>();
+        long chunkSize = 1024 * 1024 * 5;   //5MB
+        long parts = (long) Math.ceil((double) file.getFileSize() / chunkSize);
+        List<String> presignedUrls = new ArrayList<>();
 
-        for (int i =1;i<=parts;i++){
+        for (int i = 1; i <= parts; i++) {
             UploadPartRequest uploadPartRequest = UploadPartRequest.builder()
                     .bucket(bucket)
                     .key(s3Key)

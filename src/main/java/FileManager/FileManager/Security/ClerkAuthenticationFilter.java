@@ -169,16 +169,16 @@ public class ClerkAuthenticationFilter extends OncePerRequestFilter {
                                 Collections.emptyList()
                         );
 
-                userRepo.findByClerkId(principal.getClerkId()).ifPresent(u->{
-                    if(u.isDeleted()){
-                        try {
-                            response.sendError(HttpServletResponse.SC_FORBIDDEN,"Account deleted");
-                        } catch (IOException e) {
-                            throw new RuntimeException(e);
-                        }
-                        return;
-                    }
-                });
+//                userRepo.findByClerkId(principal.getClerkId()).ifPresent(u->{
+//                    if(u.isDeleted()){
+//                        try {
+//                            response.sendError(HttpServletResponse.SC_FORBIDDEN,"Account deleted");
+//                        } catch (IOException e) {
+//                            throw new RuntimeException(e);
+//                        }
+//                        return;
+//                    }
+//                });
 
                 SecurityContextHolder.getContext()
                         .setAuthentication(authentication);
