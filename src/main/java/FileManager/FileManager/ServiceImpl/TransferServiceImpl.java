@@ -356,7 +356,10 @@ public class TransferServiceImpl  {
 
         CreateMultipartUploadResponse createResponse = s3Client.createMultipartUpload(multipartUploadRequest);
         String uploadId = createResponse.uploadId();
-        long chunkSize = 1024 * 1024 * 5;   //5MB
+     //   long chunkSize = 1024 * 1024 * 5;   //5MB
+        long chunkSize = file.getFileSize() > (100 * 1024 * 1024)
+                ? 15 * 1024 * 1024
+                : 5 * 1024 * 1024;
         long parts = (long) Math.ceil((double) file.getFileSize() / chunkSize);
         List<MultipartInitResponse.ChunkUrl> chunkUrls = new ArrayList<>();
         if(parts==0){
