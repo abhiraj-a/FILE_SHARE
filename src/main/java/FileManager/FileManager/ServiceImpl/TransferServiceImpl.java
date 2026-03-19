@@ -88,11 +88,11 @@ public class TransferServiceImpl  {
 
 
 //    @Cacheable(value = "receive-by-code" , key = "#verificationCode")
-    @Transactional(readOnly = true)
+    @Transactional
     public FileTransferDTO recieveByCode(ClerkUserPrincipal principal, String verificationCode){
 
         FileTransfer transfer = fileTransferRepo.findByVerificationCode(verificationCode)
-                .orElseThrow(FileNotFoundException::new);
+                .orElseThrow(TransferNotFoundException::new);
 
         if (transfer.getFiles().isEmpty()) {
             throw new ApiException("No  files found ",HttpStatus.NOT_FOUND);
@@ -102,7 +102,7 @@ public class TransferServiceImpl  {
 
         if(transfer.getExpiresAt().isBefore(Instant.now())) throw new TransferExpiredException();
 
-        if(!transfer.getStatus().equals("completed")) throw new TransferNotFoundException();
+//        if(!transfer.getStatus().equals("completed")) throw new TransferNotFoundException();
 
         return FileTransferDTO.builder()
                 .verificationCode(verificationCode)
@@ -338,8 +338,9 @@ public class TransferServiceImpl  {
                 .status("pending")
                 .build();
 
-        fileTransferRepo.save(transfer);
-        fileEntityRepo.saveAll(fileEntities);
+        fileEntityRepo.saveAllAndFlush(fileEntities);
+        fileTransferRepo.saveAndFlush(transfer);
+
         return InitMultiDTO.builder()
                 .multipartInitResponseList(multipartInitResponseList)
                 .transferId(transfer.getTransferId())
@@ -413,7 +414,7 @@ public class TransferServiceImpl  {
         s3Client.completeMultipartUpload(completeMultipartUploadRequest);
         FileTransfer transfer =fileTransferRepo.findByTransferId(transferId).orElseThrow(TransferNotFoundException::new);
         transfer.setExpiresAt(Instant.now().plus(30,ChronoUnit.MINUTES));
-
+        fileTransferRepo.save(transfer);
         return ConfirmCompletedto.builder()
                 .verificationCode(transfer.getVerificationCode())
                 .expiresAt(transfer.getExpiresAt())
