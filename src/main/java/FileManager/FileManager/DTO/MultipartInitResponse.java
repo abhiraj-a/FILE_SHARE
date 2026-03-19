@@ -12,6 +12,13 @@ import java.util.List;
 public class MultipartInitResponse {
     private String uploadId;
     private String s3Key;
-    private List<String> presignedUrls;
+    private List<ChunkUrl> chunkUrls;
+
+    @Builder
+    @Data
+    public static class ChunkUrl{
+        private String presignedUrl;
+        private int partnumber;
+    }
 
 }

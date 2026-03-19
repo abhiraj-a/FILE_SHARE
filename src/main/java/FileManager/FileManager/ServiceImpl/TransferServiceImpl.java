@@ -358,8 +358,10 @@ public class TransferServiceImpl  {
         String uploadId = createResponse.uploadId();
         long chunkSize = 1024 * 1024 * 5;   //5MB
         long parts = (long) Math.ceil((double) file.getFileSize() / chunkSize);
-        List<String> presignedUrls = new ArrayList<>();
-
+        List<MultipartInitResponse.ChunkUrl> chunkUrls = new ArrayList<>();
+        if(parts==0){
+            parts=1;
+        }
         for (int i = 1; i <= parts; i++) {
             UploadPartRequest uploadPartRequest = UploadPartRequest.builder()
                     .bucket(bucket)
@@ -372,12 +374,15 @@ public class TransferServiceImpl  {
                     .uploadPartRequest(uploadPartRequest)
                     .signatureDuration(Duration.ofMinutes(30))
                     .build();
-            presignedUrls.add(s3Presigner.presignUploadPart(uploadPartPresignRequest).url().toString());
+            chunkUrls.add(MultipartInitResponse.ChunkUrl.builder()
+                            .presignedUrl(s3Presigner.presignUploadPart(uploadPartPresignRequest).url().toString())
+                            .partnumber(i)
+                    .build());
         }
         return MultipartInitResponse.builder()
                 .uploadId(uploadId)
                 .s3Key(s3Key)
-                .presignedUrls(presignedUrls)
+                .chunkUrls(chunkUrls)
                 .build();
     }
 
