@@ -10,7 +10,6 @@ import java.util.List;
 @Builder
 @Data
 public class TransferInitResponse {
-    private List<PreSignedDTO> preSignedDTO;
-    private String verificationCode;
+    private List<MultipartInitResponse> multipartInitResponseList;
     private String transferId;
 }

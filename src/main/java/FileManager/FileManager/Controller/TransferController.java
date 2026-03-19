@@ -1,4 +1,5 @@
 package FileManager.FileManager.Controller;
+import FileManager.FileManager.DTO.IncomingConfirmDTO;
 import FileManager.FileManager.DTO.TransferinitDTO;
 import FileManager.FileManager.Repository.FileTransferRepo;
 import FileManager.FileManager.Service.FileService;
@@ -65,8 +66,8 @@ public class TransferController {
 
     @PostMapping("/init-transfer/confirm")
     public ResponseEntity<?> confirm(@AuthenticationPrincipal
-    ClerkUserPrincipal principal , String transferId){
-        return ResponseEntity.ok(transferService.confirm(principal,transferId));
+    ClerkUserPrincipal principal , @RequestBody IncomingConfirmDTO confirmDTO){
+        return ResponseEntity.ok(transferService.confirmCompletePart(confirmDTO.getUploadId(), confirmDTO.getS3Key(),confirmDTO.getPart(),confirmDTO.getTransferId()));
     }
 
 

@@ -18,11 +18,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.model.HeadObjectRequest;
-import software.amazon.awssdk.services.s3.model.HeadObjectResponse;
-import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.model.*;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
+import software.amazon.awssdk.services.s3.presigner.model.UploadPartPresignRequest;
+
 import java.security.SecureRandom;
 import java.time.Duration;
 import java.time.Instant;
@@ -173,107 +173,107 @@ public class TransferServiceImpl  {
 
 
 
-    @Transactional
-    public TransferInitResponse
-    init(ClerkUserPrincipal principal, List<TransferinitDTO> files) {
-        User owner  = userRepo.findByClerkId(principal.getClerkId()).orElseThrow(UserNotFoundException::new);
-        boolean emailonTrial =principal.getEmail()!=null&& owner.getTrialExpiresAt().isAfter(Instant.now());
-       if(!emailonTrial) {
-           long totBytes = files.stream().mapToLong(TransferinitDTO::getFileSize).sum();
-           int cost = CreditCalculator.calculate(totBytes);
-           if (owner.getCredits() < cost) {
-               throw new InsufficientCreditException();
-           }
-           owner.setCredits(owner.getCredits() - cost);
-       }
-        
-       List<FileEntity> fileEntities = new ArrayList<>();
-       List<PreSignedDTO> preSignedDTOS =new ArrayList<>();
-       for (var f : files){
-           String key = owner.getId()+"/"+ UUID.randomUUID()+"/"+f.getOriginalFileName();
-
-           FileEntity fileEntity = FileEntity.builder()
-                   .contentType(f.getContentType())
-                   .originalFileName(f.getOriginalFileName())
-                   .fileSize(f.getFileSize())
-                   .storagePath(key)
-                   .createdAt(Instant.now())
-                   .owner(owner)
-                   .build();
-
-           PutObjectRequest putObjectRequest = PutObjectRequest.builder()
-                   .contentType(f.getContentType())
-                   .bucket(bucket)
-                   .key(key)
-                   .contentLength(f.getFileSize())
-                   .build();
-
-           PutObjectPresignRequest presignRequest =PutObjectPresignRequest.builder()
-                   .putObjectRequest(putObjectRequest)
-                   .signatureDuration(Duration.ofMinutes(30))
-                   .build();
-           String url = s3Presigner.presignPutObject(presignRequest).url().toString();
-          preSignedDTOS.add( PreSignedDTO.builder()
-                  .url(url)
-                  .originalFileName(f.getOriginalFileName())
-                  .build());
-
-          fileEntities.add(fileEntity);
-       }
-
-        FileTransfer transfer = FileTransfer.builder()
-                .files(fileEntities)
-                .verificationCode(generateVerificationCode())
-                .owner(owner)
-                .revoked(false)
-                .expiresAt(Instant.now().plus(30, ChronoUnit.MINUTES))
-                .transferId(IdGenerator.generateTransferId())
-                .status("pending")
-                .build();
-
-        fileTransferRepo.save(transfer);
-        fileEntityRepo.saveAll(fileEntities);
-       return TransferInitResponse.builder()
-               .preSignedDTO(preSignedDTOS)
-               .transferId(transfer.getTransferId())
-               .build();
-    }
-
-    public TransferCompletionDTO confirm(ClerkUserPrincipal principal, String transferId) {
-        FileTransfer transfer = fileTransferRepo.findByTransferId(transferId)
-                .orElseThrow(TransferNotFoundException::new);
-        if(!transfer.getOwner().getClerkId().equals(principal.getClerkId())){
-            throw new ApiException("Id mismatch" , HttpStatus.UNAUTHORIZED);
-        }
-
-        if(transfer.getStatus().equals("completed")){
-            return TransferCompletionDTO
-                    .builder()
-                    .expiresAt(Instant.now().plus(30,ChronoUnit.MINUTES))
-                    .verificationCode(transfer.getVerificationCode())
-                    .build();
-        }
-
-        for (FileEntity f : transfer.getFiles()){
-            HeadObjectRequest headObjectRequest = HeadObjectRequest.builder()
-                    .bucket(bucket)
-                    .key(f.getStoragePath())
-                    .build();
-            HeadObjectResponse response = s3Client.headObject(headObjectRequest);
-            if(response.contentLength()!=f.getFileSize()){
-                throw new ApiException("Size mismatch " + f.getOriginalFileName() +" Required :"+f.getFileSize() +" Found : "+response.contentLength() ,HttpStatus.FORBIDDEN);
-            }
-        }
-
-        transfer.setStatus("completed");
-        transfer.setExpiresAt(Instant.now().plus(30,ChronoUnit.MINUTES));
-        fileTransferRepo.save(transfer);
-        return TransferCompletionDTO.builder()
-                .verificationCode(transfer.getVerificationCode())
-                .expiresAt(transfer.getExpiresAt())
-                .transferId(transferId)
-                .build();
-    }
+//    @Transactional
+//    public TransferInitResponse
+//    init(ClerkUserPrincipal principal, List<TransferinitDTO> files) {
+//        User owner  = userRepo.findByClerkId(principal.getClerkId()).orElseThrow(UserNotFoundException::new);
+//        boolean emailonTrial =principal.getEmail()!=null&& owner.getTrialExpiresAt().isAfter(Instant.now());
+//       if(!emailonTrial) {
+//           long totBytes = files.stream().mapToLong(TransferinitDTO::getFileSize).sum();
+//           int cost = CreditCalculator.calculate(totBytes);
+//           if (owner.getCredits() < cost) {
+//               throw new InsufficientCreditException();
+//           }
+//           owner.setCredits(owner.getCredits() - cost);
+//       }
+//
+//       List<FileEntity> fileEntities = new ArrayList<>();
+//       List<PreSignedDTO> preSignedDTOS =new ArrayList<>();
+//       for (var f : files){
+//           String key = owner.getId()+"/"+ UUID.randomUUID()+"/"+f.getOriginalFileName();
+//
+//           FileEntity fileEntity = FileEntity.builder()
+//                   .contentType(f.getContentType())
+//                   .originalFileName(f.getOriginalFileName())
+//                   .fileSize(f.getFileSize())
+//                   .storagePath(key)
+//                   .createdAt(Instant.now())
+//                   .owner(owner)
+//                   .build();
+//
+//           PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+//                   .contentType(f.getContentType())
+//                   .bucket(bucket)
+//                   .key(key)
+//                   .contentLength(f.getFileSize())
+//                   .build();
+//
+//           PutObjectPresignRequest presignRequest =PutObjectPresignRequest.builder()
+//                   .putObjectRequest(putObjectRequest)
+//                   .signatureDuration(Duration.ofMinutes(30))
+//                   .build();
+//           String url = s3Presigner.presignPutObject(presignRequest).url().toString();
+//          preSignedDTOS.add( PreSignedDTO.builder()
+//                  .url(url)
+//                  .originalFileName(f.getOriginalFileName())
+//                  .build());
+//
+//          fileEntities.add(fileEntity);
+//       }
+//
+//        FileTransfer transfer = FileTransfer.builder()
+//                .files(fileEntities)
+//                .verificationCode(generateVerificationCode())
+//                .owner(owner)
+//                .revoked(false)
+//                .expiresAt(Instant.now().plus(30, ChronoUnit.MINUTES))
+//                .transferId(IdGenerator.generateTransferId())
+//                .status("pending")
+//                .build();
+//
+//        fileTransferRepo.save(transfer);
+//        fileEntityRepo.saveAll(fileEntities);
+//       return TransferInitResponse.builder()
+//               .preSignedDTO(preSignedDTOS)
+//               .transferId(transfer.getTransferId())
+//               .build();
+//    }
+//
+//    public TransferCompletionDTO confirm(ClerkUserPrincipal principal, String transferId) {
+//        FileTransfer transfer = fileTransferRepo.findByTransferId(transferId)
+//                .orElseThrow(TransferNotFoundException::new);
+//        if(!transfer.getOwner().getClerkId().equals(principal.getClerkId())){
+//            throw new ApiException("Id mismatch" , HttpStatus.UNAUTHORIZED);
+//        }
+//
+//        if(transfer.getStatus().equals("completed")){
+//            return TransferCompletionDTO
+//                    .builder()
+//                    .expiresAt(Instant.now().plus(30,ChronoUnit.MINUTES))
+//                    .verificationCode(transfer.getVerificationCode())
+//                    .build();
+//        }
+//
+//        for (FileEntity f : transfer.getFiles()){
+//            HeadObjectRequest headObjectRequest = HeadObjectRequest.builder()
+//                    .bucket(bucket)
+//                    .key(f.getStoragePath())
+//                    .build();
+//            HeadObjectResponse response = s3Client.headObject(headObjectRequest);
+//            if(response.contentLength()!=f.getFileSize()){
+//                throw new ApiException("Size mismatch " + f.getOriginalFileName() +" Required :"+f.getFileSize() +" Found : "+response.contentLength() ,HttpStatus.FORBIDDEN);
+//            }
+//        }
+//
+//        transfer.setStatus("completed");
+//        transfer.setExpiresAt(Instant.now().plus(30,ChronoUnit.MINUTES));
+//        fileTransferRepo.save(transfer);
+//        return TransferCompletionDTO.builder()
+//                .verificationCode(transfer.getVerificationCode())
+//                .expiresAt(transfer.getExpiresAt())
+//                .transferId(transferId)
+//                .build();
+//    }
 
     public List<OngoingTransferDTO> ongoing(ClerkUserPrincipal principal) {
         User user  = userRepo.findByClerkId(principal.getClerkId()).orElseThrow(UserNotFoundException::new);
@@ -297,4 +297,119 @@ public class TransferServiceImpl  {
         }
         return transferDTOS;
     }
+
+
+    @Transactional
+    public List<MultipartInitResponse>
+    init(ClerkUserPrincipal principal, List<TransferinitDTO> files) {
+        User owner = userRepo.findByClerkId(principal.getClerkId()).orElseThrow(UserNotFoundException::new);
+        boolean emailonTrial = principal.getEmail() != null && owner.getTrialExpiresAt().isAfter(Instant.now());
+        if (!emailonTrial) {
+            long totBytes = files.stream().mapToLong(TransferinitDTO::getFileSize).sum();
+            int cost = CreditCalculator.calculate(totBytes);
+            if (owner.getCredits() < cost) {
+                throw new InsufficientCreditException();
+            }
+            owner.setCredits(owner.getCredits() - cost);
+        }
+        List<MultipartInitResponse> multipartInitResponseList =new ArrayList<>();
+        List<FileEntity> fileEntities = new ArrayList<>();
+        for (var f : files) {
+            String key = owner.getId() + "/" + UUID.randomUUID() + "/" + f.getOriginalFileName();
+
+            FileEntity fileEntity = FileEntity.builder()
+                    .contentType(f.getContentType())
+                    .originalFileName(f.getOriginalFileName())
+                    .fileSize(f.getFileSize())
+                    .storagePath(key)
+                    .createdAt(Instant.now())
+                    .owner(owner)
+                    .build();
+            multipartInitResponseList.add(multipartInitResponse(fileEntity));
+            fileEntities.add(fileEntity);
+        }
+
+                FileTransfer transfer = FileTransfer.builder()
+                .files(fileEntities)
+                .verificationCode(generateVerificationCode())
+                .owner(owner)
+                .revoked(false)
+                .expiresAt(Instant.now().plus(30, ChronoUnit.MINUTES))
+                .transferId(IdGenerator.generateTransferId())
+                .status("pending")
+                .build();
+
+        fileTransferRepo.save(transfer);
+        fileEntityRepo.saveAll(fileEntities);
+        return multipartInitResponseList;
+    }
+
+    public MultipartInitResponse multipartInitResponse(FileEntity file){
+        String s3Key = file.getStoragePath();
+        CreateMultipartUploadRequest multipartUploadRequest = CreateMultipartUploadRequest.builder()
+                .bucket(bucket)
+                .key(s3Key)
+                .contentType(file.getContentType())
+                .build();
+
+        CreateMultipartUploadResponse createResponse = s3Client.createMultipartUpload(multipartUploadRequest);
+        String uploadId = createResponse.uploadId();
+        long chunkSize = 1024*1024*5;   //5MB
+        long parts = (long) Math.ceil((double) file.getFileSize() /chunkSize);
+        List<String> presignedUrls =new ArrayList<>();
+
+        for (int i =1;i<=parts;i++){
+            UploadPartRequest uploadPartRequest = UploadPartRequest.builder()
+                    .bucket(bucket)
+                    .key(s3Key)
+                    .partNumber(i)
+                    .uploadId(uploadId)
+                    .build();
+
+            UploadPartPresignRequest uploadPartPresignRequest = UploadPartPresignRequest.builder()
+                    .uploadPartRequest(uploadPartRequest)
+                    .signatureDuration(Duration.ofMinutes(30))
+                    .build();
+            presignedUrls.add(s3Presigner.presignUploadPart(uploadPartPresignRequest).url().toString());
+        }
+        return MultipartInitResponse.builder()
+                .uploadId(uploadId)
+                .s3Key(s3Key)
+                .presignedUrls(presignedUrls)
+                .build();
+    }
+
+    @Transactional
+    public ConfirmCompletedto confirmCompletePart(String uploadId ,String s3Key,List<PartDto> parts,String transferId){
+        List<CompletedPart> completedParts = parts.stream()
+                .map(p->CompletedPart.builder()
+                        .partNumber(p.getPartnumber())
+                        .eTag(p.getETag())
+                        .build()).toList();
+
+
+        CompletedMultipartUpload completedMultipartUpload = CompletedMultipartUpload.builder()
+                .parts(completedParts)
+                .build();
+
+        CompleteMultipartUploadRequest completeMultipartUploadRequest =CompleteMultipartUploadRequest
+                .builder()
+                .bucket(bucket)
+                .uploadId(uploadId)
+                .key(s3Key)
+                .multipartUpload(completedMultipartUpload)
+                .build();
+
+        s3Client.completeMultipartUpload(completeMultipartUploadRequest);
+        FileTransfer transfer =fileTransferRepo.findByTransferId(transferId).orElseThrow(TransferNotFoundException::new);
+        transfer.setExpiresAt(Instant.now().plus(30,ChronoUnit.MINUTES));
+
+        return ConfirmCompletedto.builder()
+                .verificationCode(transfer.getVerificationCode())
+                .expiresAt(transfer.getExpiresAt())
+                .transferId(transferId)
+                .build();
+    }
+
+
 }
