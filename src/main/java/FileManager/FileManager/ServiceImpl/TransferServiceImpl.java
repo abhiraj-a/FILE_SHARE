@@ -4,7 +4,6 @@ import FileManager.FileManager.Entity.FileEntity;
 import FileManager.FileManager.Entity.FileTransfer;
 import FileManager.FileManager.Entity.User;
 import FileManager.FileManager.ExceptionHandler.*;
-import FileManager.FileManager.ServiceImpl.StorageServiceImpl;
 import FileManager.FileManager.Utils.ClerkUserPrincipal;
 import FileManager.FileManager.Repository.FileEntityRepo;
 import FileManager.FileManager.Repository.FileTransferRepo;
@@ -20,9 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.*;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
-import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
 import software.amazon.awssdk.services.s3.presigner.model.UploadPartPresignRequest;
-
 import java.security.SecureRandom;
 import java.time.Duration;
 import java.time.Instant;
@@ -84,8 +81,6 @@ public class TransferServiceImpl  {
     private String generateVerificationCode() {
         return String.format("%05d", new SecureRandom().nextInt(100000));
     }
-
-
 
 //    @Cacheable(value = "receive-by-code" , key = "#verificationCode")
     @Transactional
@@ -335,7 +330,7 @@ public class TransferServiceImpl  {
                 .revoked(false)
                 .expiresAt(Instant.now().plus(30, ChronoUnit.MINUTES))
                 .transferId(IdGenerator.generateTransferId())
-                .status("pending")
+                .status("initiated")
                 .build();
 
         fileEntityRepo.saveAllAndFlush(fileEntities);
@@ -354,7 +349,6 @@ public class TransferServiceImpl  {
                 .key(s3Key)
                 .contentType(file.getContentType())
                 .build();
-
         CreateMultipartUploadResponse createResponse = s3Client.createMultipartUpload(multipartUploadRequest);
         String uploadId = createResponse.uploadId();
      //   long chunkSize = 1024 * 1024 * 5;   //5MB
@@ -414,6 +408,7 @@ public class TransferServiceImpl  {
         s3Client.completeMultipartUpload(completeMultipartUploadRequest);
         FileTransfer transfer =fileTransferRepo.findByTransferId(transferId).orElseThrow(TransferNotFoundException::new);
         transfer.setExpiresAt(Instant.now().plus(30,ChronoUnit.MINUTES));
+        transfer.setStatus("confirmed");
         fileTransferRepo.save(transfer);
         return ConfirmCompletedto.builder()
                 .verificationCode(transfer.getVerificationCode())
