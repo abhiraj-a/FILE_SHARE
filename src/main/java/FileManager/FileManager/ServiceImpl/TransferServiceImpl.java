@@ -146,7 +146,7 @@ public class TransferServiceImpl  {
     }
 
 
-    @CacheEvict(value = "receive-by-code"   ,allEntries = true)
+ //   @CacheEvict(value = "receive-by-code"   ,allEntries = true)
     public void revokeTransfer(ClerkUserPrincipal principal, String fileTransferId) {
 
         User owner  = userRepo.findByClerkId(principal.getClerkId()).orElseThrow(UserNotFoundException::new);
