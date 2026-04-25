@@ -20,6 +20,8 @@ import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.*;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.UploadPartPresignRequest;
+
+import javax.naming.SizeLimitExceededException;
 import java.security.SecureRandom;
 import java.time.Duration;
 import java.time.Instant;
@@ -300,6 +302,9 @@ public class TransferServiceImpl  {
         boolean emailonTrial = principal.getEmail() != null && owner.getTrialExpiresAt().isAfter(Instant.now());
         if (!emailonTrial) {
             long totBytes = files.stream().mapToLong(TransferinitDTO::getFileSize).sum();
+            if(totBytes>1_500_000_000 ){
+                throw new SizeExcededException();
+            }
             int cost = CreditCalculator.calculate(totBytes);
             if (owner.getCredits() < cost) {
                 throw new InsufficientCreditException();

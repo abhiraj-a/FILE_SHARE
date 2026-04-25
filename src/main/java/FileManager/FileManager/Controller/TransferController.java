@@ -1,8 +1,10 @@
 package FileManager.FileManager.Controller;
-import FileManager.FileManager.DTO.IncomingConfirmDTO;
-import FileManager.FileManager.DTO.TransferinitDTO;
+import FileManager.FileManager.DTO.*;
+import FileManager.FileManager.Entity.FileTransfer;
+import FileManager.FileManager.ExceptionHandler.TransferNotFoundException;
 import FileManager.FileManager.Repository.FileTransferRepo;
 import FileManager.FileManager.Service.FileService;
+import FileManager.FileManager.ServiceImpl.EmailService;
 import FileManager.FileManager.ServiceImpl.TransferServiceImpl;
 import FileManager.FileManager.Utils.ClerkUserPrincipal;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +25,7 @@ public class TransferController {
     private  final FileTransferRepo fileTransferRepo;
 
     private final FileService fileService;
+    private final EmailService emailService;
 
 //    @PostMapping("/files-to-transfer")
 //    public ResponseEntity<?> transferFiles(@AuthenticationPrincipal
@@ -58,10 +61,22 @@ public class TransferController {
     }
 
 
+    // now adding beneficiary emails to send the verification code
     @PostMapping("/init-transfer")
     public ResponseEntity<?> initTransfer(@AuthenticationPrincipal
-                                           ClerkUserPrincipal principal, @RequestBody List<TransferinitDTO> files){
-        return ResponseEntity.ok(transferService.init(principal,files));
+                                           ClerkUserPrincipal principal, @RequestBody WrapperDto wrapperDto){
+
+        List<TransferinitDTO> files = wrapperDto.getFiles();
+        BeneficiaryDTO beneficiaryDTO = wrapperDto.getBeneficiaryDTO();
+        InitMultiDTO init = transferService.init(principal,files);
+        if(beneficiaryDTO!=null ){
+            FileTransfer transfer = fileTransferRepo.findByTransferId(init.getTransferId()).orElseThrow(TransferNotFoundException::new);
+            List<String> emails =beneficiaryDTO.getEmails();
+            for (String email : emails){
+                emailService.sendVerificationEmail(email,"",transfer.getVerificationCode());
+            }
+        }
+        return ResponseEntity.ok(init);
     }
 
     @PostMapping("/init-transfer/confirm")

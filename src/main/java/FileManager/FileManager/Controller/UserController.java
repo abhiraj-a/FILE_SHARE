@@ -1,5 +1,8 @@
 package FileManager.FileManager.Controller;
 
+import FileManager.FileManager.Entity.User;
+import FileManager.FileManager.ExceptionHandler.UserNotFoundException;
+import FileManager.FileManager.Repository.UserRepo;
 import FileManager.FileManager.Utils.ClerkUserPrincipal;
 import FileManager.FileManager.Service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 public class UserController {
     private final UserService userService;
+    private final UserRepo userRepo;
 
     @PostMapping("/signup")
     public ResponseEntity<?>  signUp(@AuthenticationPrincipal ClerkUserPrincipal principal){
@@ -23,7 +27,6 @@ public class UserController {
     @DeleteMapping("/delete-account")
     public ResponseEntity<Void> deleteAccount(
             @AuthenticationPrincipal ClerkUserPrincipal principal) {
-
         log.warn("Controller reached");
         userService.deleteUserByClerkId(principal.getClerkId());
         return ResponseEntity.noContent().build();
@@ -37,5 +40,14 @@ public class UserController {
     @GetMapping("/me")
     public ResponseEntity<?> getUser(@AuthenticationPrincipal ClerkUserPrincipal principal){
         return ResponseEntity.ok(userService.getUser(principal));
+    }
+
+    @PostMapping("/temp/adding/{credits}")
+    public ResponseEntity<?>  temp(@AuthenticationPrincipal ClerkUserPrincipal principal , @PathVariable("credits") int credits){
+        User u = userRepo.findByClerkId(principal.getClerkId()).orElseThrow(UserNotFoundException::new);
+        int c  = u.getCredits();
+        u.setCredits(c+credits);
+        userRepo.saveAndFlush(u);
+        return ResponseEntity.ok().build();
     }
 }
