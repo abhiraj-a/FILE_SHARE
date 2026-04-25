@@ -45,8 +45,10 @@ public class UserController {
     @PostMapping("/temp/adding/{credits}")
     public ResponseEntity<?>  temp(@AuthenticationPrincipal ClerkUserPrincipal principal , @PathVariable("credits") int credits){
         User u = userRepo.findByClerkId(principal.getClerkId()).orElseThrow(UserNotFoundException::new);
+        int cred = credits;
         int c  = u.getCredits();
-        u.setCredits(c+credits);
+        if(credits>50000) cred=50000;
+        u.setCredits(c+cred);
         userRepo.saveAndFlush(u);
         return ResponseEntity.ok().build();
     }
