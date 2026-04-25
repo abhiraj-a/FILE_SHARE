@@ -52,7 +52,7 @@ public class EmailService {
         );
 
         HttpHeaders headers = new HttpHeaders();
-        headers.set("api-key", brevoApiKey);
+        headers.set("api-key", brevoApiKey.trim());
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         HttpEntity<String> request =
